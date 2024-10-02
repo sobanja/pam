@@ -1,70 +1,98 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
-}
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  resultContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  resultText: {
+    fontSize: 48,
+    color: '#000',
+  },
+  buttonsContainer: {
+    flex: 3,
+    backgroundColor: '#e0e0e0',
+    padding: 10,
+  },
+  row: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  button: {
+    backgroundColor: '#d4d4d2',
+    padding: 20,
+    borderRadius: 10,
+    flex: 1,
+    margin: 5,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  buttonText: {
+    fontSize: 24,
+    color: '#000',
   },
 });
+
+const App: React.FC = () => {
+  const [result, setResult] = useState('0');
+  const [calculation, setCalculation] = useState('');
+
+  const handlePress = (buttonValue: string) => {
+    if (buttonValue === 'C') {
+      setResult('0');
+      setCalculation('');
+    } else if (buttonValue === '=') {
+      try {
+        setResult(eval(calculation).toString());
+      } catch (error) {
+        setResult('Error');
+      }
+    } else {
+      setCalculation((prev) => prev + buttonValue);
+      setResult((prev) => (prev === '0' ? buttonValue : prev + buttonValue));
+    }
+  };
+
+  const buttons = [
+    ['C', '()', '%', '/'],
+    ['7', '8', '9', '*'],
+    ['4', '5', '6', '-'],
+    ['1', '2', '3', '+'],
+    ['0', '.', '='],
+  ];
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.resultContainer}>
+        <Text style={styles.resultText}>{result}</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        {buttons.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((buttonValue) => (
+              <TouchableOpacity
+                key={buttonValue}
+                style={styles.button}
+                onPress={() => handlePress(buttonValue)}
+              >
+                <Text style={styles.buttonText}>{buttonValue}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+export default App;
